@@ -22,6 +22,7 @@ option(BUILD_DOCUMENTATION "Build the documentation." OFF)
 option(CODE_COVERAGE "Enable code coverage" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static ones" OFF)
 option(ENABLE_NETCDF "Enable AMBER NetCDF format." OFF)
+option(ENABLE_ZLIB "Enable usage of zlib in TNG format." OFF)
 option(USE_WARNINGS "Compile the code with warnings (default in debug mode)" OFF)
 
 include(CompilerFlags)
@@ -57,7 +58,11 @@ endif()
 add_subdirectory(external)
 
 file(GLOB_RECURSE sources src/**.cpp)
-add_library(chemfiles ${sources} $<TARGET_OBJECTS:molfiles> $<TARGET_OBJECTS:cppformat>)
+add_library(chemfiles ${sources}
+    $<TARGET_OBJECTS:molfiles>
+    $<TARGET_OBJECTS:cppformat>
+    $<TARGET_OBJECTS:tng>
+)
 
 set_property(TARGET chemfiles PROPERTY VERSION ${CHEMFILES_VERSION_SHORT})
 set_property(TARGET chemfiles PROPERTY SOVERSION ${CHEMFILES_VERSION_SHORT})
@@ -77,6 +82,10 @@ else()
         message(STATUS "Found NetCDF library. Consider activating the associated format with -DENABLE_NETCDF=ON")
     endif()
     set(HAVE_NETCDF 0)
+endif()
+
+if(${ENABLE_ZLIB})
+    target_link_libraries(chemfiles ${ZLIB_LIBRARIES})
 endif()
 
 configure_file (

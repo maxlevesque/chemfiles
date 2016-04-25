@@ -24,6 +24,27 @@ include_directories(cppformat/include)
 add_library(cppformat OBJECT cppformat/format.cpp)
 set_target_properties(cppformat PROPERTIES COMPILE_FLAGS ${EXTERNAL_FLAGS})
 
+
+# ============================================================================ #
+
+# TNG io library
+include(tng/BuildTNG.cmake)
+tng_get_source_list(TNG_SOURCES)
+
+add_library(tng OBJECT ${TNG_SOURCES})
+set_target_properties(tng PROPERTIES COMPILE_FLAGS ${EXTERNAL_FLAGS})
+
+if(${ENABLE_ZLIB})
+    find_package(ZLIB REQUIRED)
+    tng_set_source_properties(WITH_ZLIB ON)
+    target_include_directories(tng PUBLIC ${ZLIB_INCLUDE_DIRS})
+else()
+    find_package(ZLIB QUIET)
+    if(${ZLIB_FOUND})
+        message(STATUS "Found zlib library. Consider activating compression with -DENABLE_ZLIB=ON")
+    endif()
+endif()
+
 # ============================================================================ #
 
 # VMD Molfile plugins
